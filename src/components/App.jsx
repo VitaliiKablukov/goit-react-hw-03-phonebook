@@ -10,11 +10,12 @@ export class App extends Component {
     filter: '',
   };
   onSubmitForm = data => {
-    const findName = this.state.contacts.filter(el => el.name === data.name);
-    if (findName.length > 0) {
-      return alert(`${data.name} is already contacts`);
+    const { name, number } = data;
+    const { contacts } = this.state;
+    if (contacts.some(el => el.name === name.toLowerCase())) {
+      return alert(`${name} is already contacts`);
     } else {
-      const user = { id: nanoid(), name: data.name, number: data.number };
+      const user = { id: nanoid(), name: name, number: number };
       this.setState(prevState => ({
         contacts: [...prevState.contacts, user],
       }));
@@ -34,6 +35,18 @@ export class App extends Component {
       contacts: prevState.contacts.filter(el => el.id !== id),
     }));
   };
+  componentDidMount() {
+    const constacts = localStorage.getItem('contacts');
+    const parseContacts = JSON.parse(constacts);
+    if (parseContacts) {
+      this.setState({ contacts: parseContacts });
+    }
+  }
+  componentDidUpdate(prevState) {
+    if (this.state.contacts !== prevState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
   render() {
     const visbleContacts = this.onFilter();
     return (
